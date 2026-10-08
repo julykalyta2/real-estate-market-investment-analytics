@@ -1,0 +1,23 @@
+column,type,description
+listing_id,object,Unique listing identifier
+property_id,object,Property identifier
+market,object,Metro market
+neighborhood,object,Neighborhood
+property_type,object,Property type
+close_date,datetime64[ns],Closing date
+beds,int64,Bedrooms
+baths,float64,Bathrooms
+sqft,int64,Square footage
+year_built,float64,Year built
+renovated,object,Renovation indicator
+condition,object,Condition
+list_price,float64,Original list price
+sale_price,float64,Final sale price
+days_on_market,float64,Days on market
+monthly_rent_est,float64,Estimated monthly rent
+annual_property_tax,float64,Annual property tax
+annual_insurance,float64,Annual insurance
+annual_maintenance,float64,Annual maintenance
+vacancy_rate,float64,Expected vacancy rate
+management_fee_annual,float64,Annual management fee
+mortgage_rate,float64,Approximate mortgage rate

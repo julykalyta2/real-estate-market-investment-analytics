@@ -1,0 +1,101 @@
+-- POWER BI DAX MEASURES
+-- Import: powerbi_real_estate_fact.csv
+-- Import: powerbi_date_dimension.csv
+-- Relationship: Date[Date] 1 --> * Fact[close_date]
+
+Transactions =
+DISTINCTCOUNT('powerbi_real_estate_fact'[listing_id])
+
+Total Sales =
+SUM('powerbi_real_estate_fact'[sale_price])
+
+Average Sale Price =
+AVERAGE('powerbi_real_estate_fact'[sale_price])
+
+Median Sale Price =
+MEDIAN('powerbi_real_estate_fact'[sale_price])
+
+Average Days on Market =
+AVERAGE('powerbi_real_estate_fact'[days_on_market])
+
+Average Sale-to-List % =
+AVERAGE('powerbi_real_estate_fact'[sale_to_list_pct])
+
+Total Estimated NOI =
+SUM('powerbi_real_estate_fact'[estimated_noi])
+
+Average Cap Rate =
+AVERAGE('powerbi_real_estate_fact'[cap_rate])
+
+Average Monthly Rent =
+AVERAGE('powerbi_real_estate_fact'[monthly_rent])
+
+Average Price / Sq Ft =
+AVERAGE('powerbi_real_estate_fact'[price_per_sqft])
+
+Average Mortgage Rate =
+AVERAGE('powerbi_real_estate_fact'[mortgage_rate])
+
+YoY Sales Growth % =
+VAR CurrentSales = [Total Sales]
+VAR PriorSales =
+    CALCULATE(
+        [Total Sales],
+        DATEADD('powerbi_date_dimension'[Date], -1, YEAR)
+    )
+RETURN
+DIVIDE(CurrentSales - PriorSales, PriorSales)
+
+YoY Median Price Growth % =
+VAR CurrentPrice = [Median Sale Price]
+VAR PriorPrice =
+    CALCULATE(
+        [Median Sale Price],
+        DATEADD('powerbi_date_dimension'[Date], -1, YEAR)
+    )
+RETURN
+DIVIDE(CurrentPrice - PriorPrice, PriorPrice)
+
+Transactions YoY % =
+VAR CurrentTransactions = [Transactions]
+VAR PriorTransactions =
+    CALCULATE(
+        [Transactions],
+        DATEADD('powerbi_date_dimension'[Date], -1, YEAR)
+    )
+RETURN
+DIVIDE(CurrentTransactions - PriorTransactions, PriorTransactions)
+
+Cap Rate Rank =
+RANKX(
+    ALL('powerbi_real_estate_fact'[neighborhood]),
+    [Average Cap Rate],
+    ,
+    DESC,
+    Dense
+)
+
+Neighborhood Opportunity Score =
+VAR CapRateScore =
+    DIVIDE(
+        [Average Cap Rate],
+        CALCULATE(
+            MAXX(
+                ALL('powerbi_real_estate_fact'[neighborhood]),
+                [Average Cap Rate]
+            )
+        )
+    )
+VAR SpeedScore =
+    1 -
+    DIVIDE(
+        [Average Days on Market],
+        CALCULATE(
+            MAXX(
+                ALL('powerbi_real_estate_fact'[neighborhood]),
+                [Average Days on Market]
+            )
+        )
+    )
+RETURN
+0.7 * CapRateScore + 0.3 * SpeedScore
